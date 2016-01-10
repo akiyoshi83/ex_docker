@@ -58,3 +58,10 @@ app:
 # 他のハマリどころとしては、thrubyracerが必要だったり(node.jsを用意してないので)、
 # config/database.ymlのhostを書き換えてbin/rake db:createする必要だったり。
 # まあdockerじゃなくても必要なことだが。
+#
+# 以降は
+# docker exec test_rails_app bin/rails g scaffold blog title:string body:text
+# docker exec test_rails_app bin/rake db:migrate
+# などとして普通に開発できた。
+#
+# config/application.rb変えたり再起動が必要な時は`docker-compose restart app`で良いだろうか？
