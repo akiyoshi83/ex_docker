@@ -1,0 +1,60 @@
+# データ用コンテナ
+data:
+  image: busybox
+  volumes:
+    - /var/lib/mysql # mysqlのデータディレクトリ
+    # rubyイメージのデフォルトのgem格納先
+    # これをマウントしてしまうとDockerfileでインストールしたgemが消えてしまった。
+    # 何度か作成し直したからそのせい？
+    - /usr/local/bundle
+    # Railsプロジェクト用のbundle先として用意したが
+    # bin/railsなどが動かなかったのでやめた。
+    #- /var/app/bundle
+  # 間違えてrmしないようにdocker-compose up後にstopさせない。
+  tty: true
+
+db:
+  image: mysql
+  expose:
+    - "3306"
+  volumes_from:
+    - data
+  environment:
+    MYSQL_ALLOW_EMPTY_PASSWORD: yes
+    #MYSQL_USER: mysql_user
+    #MYSQL_PASSWORD: pasword
+    #MYSQL_ROOT_PASSWORD: password
+    #MYSQL_DATABASE: dbname
+
+app:
+  container_name: test_rails_app
+  build: .
+  ports:
+    - "3000:3000"
+  # Dockerfileでも定義しているがどちらでやるのが良いのか？
+  #working_dir: /usr/src/app
+  # rails newでプロジェクトを作るまでは/usr/src/appにしておいて
+  # 作成後は/user/src/app/test_appに変更してコンテナ削除、再度upしてみる。
+  working_dir: /usr/src/app/test_app
+  # これもrails newした後に追記
+  # -b 0.0.0.0がないと動かなかった。
+  command: ["bin/rails", "s", "-b", "0.0.0.0"]
+  volumes:
+    - .:/usr/src/app
+  volumes_from:
+    - data
+  links:
+    - db
+  # docker-compose up後にstopしないように。
+  tty: true
+
+# working_dirが/usr/src/appのうちにrails new
+# docker-compose run app rails new -B -T -d mysql test_app
+# working_dirを/usr/src/app/test_appに変更してコンテナ削除・再作成して以下のコマンド
+# docker-compose run app bin/bundle install --path /var/app/bundle
+# 動作環境を整えたらcommandでbin/rails s -b 0.0.0.0を実行するように変更した。
+# runやexecではうまく動かなかった。
+#
+# 他のハマリどころとしては、thrubyracerが必要だったり(node.jsを用意してないので)、
+# config/database.ymlのhostを書き換えてbin/rake db:createする必要だったり。
+# まあdockerじゃなくても必要なことだが。
