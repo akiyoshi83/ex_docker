@@ -1,0 +1,37 @@
+# データ用コンテナ
+data:
+  image: busybox
+  volumes:
+    - /var/lib/mysql # mysqlのデータディレクトリ
+    #- /usr/local/bundle # bundle先(開発用)
+  # 間違えてrmしないようにdocker-compose up後にstopさせない。
+  tty: true
+
+db:
+  image: mysql
+  expose:
+    - "3306"
+  volumes_from:
+    - data
+  environment:
+    MYSQL_ALLOW_EMPTY_PASSWORD: yes
+    #MYSQL_USER: mysql_user
+    #MYSQL_PASSWORD: pasword
+    #MYSQL_ROOT_PASSWORD: password
+    #MYSQL_DATABASE: dbname
+
+app:
+  build: .
+  ports:
+    - "3000:3000"
+  # 開発時のみ欲しいのでcomposeで記述。
+  volumes:
+    - .:/usr/src/app
+  # 開発時のみ欲しいのでcomposeで記述。
+  #volumes_from:
+  #  - data
+  links:
+    - db
+  # docker-compose up後にstopしないように。
+  tty: true
+
