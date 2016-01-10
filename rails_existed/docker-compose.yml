@@ -3,7 +3,6 @@ data:
   image: busybox
   volumes:
     - /var/lib/mysql # mysqlのデータディレクトリ
-    #- /usr/local/bundle # bundle先(開発用)
   # 間違えてrmしないようにdocker-compose up後にstopさせない。
   tty: true
 
@@ -27,9 +26,6 @@ app:
   # 開発時のみ欲しいのでcomposeで記述。
   volumes:
     - .:/usr/src/app
-  # 開発時のみ欲しいのでcomposeで記述。
-  #volumes_from:
-  #  - data
   links:
     - db
   # docker-compose up後にstopしないように。
