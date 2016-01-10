@@ -1,0 +1,5 @@
+# Dockerfile側でマウントした/dataを利用する
+# docker build -t akiyoshi83/t_data_user -f Dockerfile-mount .
+# docker run -it --name data_user --volumes-from data akiyoshi83/t_data_user /bin/sh
+FROM busybox
+MAINTAINER mail@akiyoshi.info
